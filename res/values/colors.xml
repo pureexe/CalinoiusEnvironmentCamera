@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="action_bar_bg">#009688</color>
+    <color name="teal500">#009688</color>
+    <color name="teal400">#26a69a</color>
+    <color name="teal300">#4db6ac</color>
+    <color name="teal200">#80cbc4</color>
+    <color name="teal100">#b2dfdb</color>
+    <color name="teal50">#e0f2f1</color>
+    <color name="bottom_grid">#40000000</color>
+    <color name="white">#FFFFFF</color>
+    
+    
+    <color name="nav_drawer_bg">#29B8CD</color>
+    <color name="nav_drawer_divider">#05000000</color>
+    
+    <color name="global_text">#666666</color>
+    <color name="global_text_header">#26a69a</color>
+    
+    <color name="global_anti_bg">#FFD200</color>
+    <color name="global_bg">#F1F1F1</color>
+    
+    <color name="global_row_gradient_1_bg">#00000000</color>
+    <color name="global_row_gradient_2_bg">#07000000</color>
+    
+    <color name="screen_measure_bg">#770076ba</color>
+    <color name="screen_measure_bg2">#77038d88</color>
+    
+    <color name="list_selector_bg">#fdcf09</color>
+    
+    
+</resources>

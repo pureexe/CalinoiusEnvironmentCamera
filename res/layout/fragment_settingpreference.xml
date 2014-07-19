@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory android:title="@string/camera_interface">
+	        <CheckBoxPreference
+    		    android:key="aim_point"
+        		android:title="@string/aim_point"
+        		android:summary="@string/aim_point_des"
+        	/>
+	        <CheckBoxPreference
+        		android:key="shutter_sound"
+        		android:title="@string/shutter_sound"
+        		android:summary="@string/shutter_sound_des"
+        		android:defaultValue="true"
+        	/>
+        </PreferenceCategory>
+        <PreferenceCategory android:title="@string/sensor_quality">
+            <CheckBoxPreference
+        		android:key="thermistor_integration"
+        		android:title="@string/thermistor_integration"
+        		android:summary="@string/thermistor_integration_des"
+        		android:defaultValue="true"
+        	/>
+         	<com.pureexe.calinoius.environment.camera.dialog.SensorRepeatDialog
+         	   	 android:key="sensor_repeat"
+         	     android:title="@string/sensor_repeat"
+         	     android:summary="@string/sensor_repeat_des" />
+        </PreferenceCategory>
+</PreferenceScreen>

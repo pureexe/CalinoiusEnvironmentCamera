@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Calinoius Environment Camera</string>
+    <string name="app_name_exif">Calinoius EXIF</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_compass">Compass</string>
+    <string name="action_example">Example action</string>
+    <string name="action_environmentcamera">Environment Camera</string>
+	<string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="researcher">Researcher</string>
+    <string name="photographer">Photographer</string>
+    <string name="softwareversion">Software Version</string>
+    <string name="acceleration">Acceleration</string>
+    <string name="gravity">Gravity</string>
+    <string name="gyroscope">Gyroscope</string>
+    <string name="orientation">Orientation</string>
+    <string name="magneticfield">Magnetic Field</string>
+    <string name="light">Light</string>
+    <string name="pressure">Pressure</string>
+    <string name="humidity">Humidity</string>
+    <string name="tempurature">Tempurature</string>
+    <string name="notavailable">Not Available</string>
+    <string name="software">Software</string>
+    <string name="ms2">m/s2</string>
+    <string name="unknown">Unknown</string>
+    <string name="camera">Camera</string>
+    <string name="camera_interface">Camera Interface</string>
+    <string name="aim_point">Aim point</string>
+    <string name="aim_point_des">Display aim point on screen</string>
+    <string name="shutter_sound">Shutter sound</string>
+    <string name="shutter_sound_des">Play shutter sound when capture image</string>
+    <string name="sensor_quality">Sensor quality</string>
+    <string name="sensor_repeat">Sensor Repeat</string>
+    <string name="sensor_repeat_des">times per data</string>
+    <string name="sensor_repeat_dialog_des">set sensor repeat, more is increase quality but decrease sensor sensitive</string>
+    <string name="thermistor_integration">Thermistor integration</string>
+    <string name="thermistor_integration_des">Use battery thermistor to collect environment tempurature when ambient temperature not avaliable</string>
+    
+    
+</resources>
