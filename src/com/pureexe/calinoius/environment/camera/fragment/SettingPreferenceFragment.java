@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 public class SettingPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
 	public static String AIM_POINT="aim_point";
+	public static String SHUTTHER_SOUND="shutter_sound";
+	public static String THERMISTER_INTEGRATION="thermistor_integration";
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {

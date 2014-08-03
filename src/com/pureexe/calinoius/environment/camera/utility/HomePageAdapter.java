@@ -17,10 +17,14 @@
 package com.pureexe.calinoius.environment.camera.utility;
 
 
+import java.lang.reflect.Field;
+
 import com.pureexe.calinoius.environment.camera.R;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.text.BoringLayout.Metrics;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -55,7 +59,6 @@ public class HomePageAdapter extends BaseAdapter {
         return 0;
     }
     
-    // create a new ImageView for each item referenced by the Adapter
 	@Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
@@ -64,17 +67,21 @@ public class HomePageAdapter extends BaseAdapter {
             aContext = (Activity) mContext;
             LayoutInflater inflater  = aContext.getLayoutInflater(); 
             row = inflater.inflate(R.layout.grid_homepage, parent, false);
-            DisplayMetrics disMer = mContext.getResources().getDisplayMetrics();
-            row.setLayoutParams(new GridView.LayoutParams((int)((float)120*disMer.density),(int)((float)120*disMer.density)));
+            row.setLayoutParams(new GridView.LayoutParams(GridView.AUTO_FIT,getGridViewColumnWidht((GridView)parent)));
             //row.setPadding(8,8, 8, 8);            
             ImageView img = (ImageView) row.findViewById(R.id.tileImage);
             TextView txt = (TextView) row.findViewById(R.id.tileLabel);
             RelativeLayout relativeLayout = (RelativeLayout) row.findViewById(R.id.Block);
             relativeLayout.setBackgroundResource(R.color.teal200);
+            DisplayMetrics disMer = mContext.getResources().getDisplayMetrics();
 
             if(position == 0){
                 img.setImageResource(mThumbIds[position].picture);
-            	txt.setText(dataManager.getString("Researcher"));
+                if(!dataManager.getString("Researcher").equals("Unknown")){
+                	txt.setText(dataManager.getString("Researcher"));
+                } else {
+                	txt.setText("Researcher");
+                }
             } else {
                 img.setImageResource(mThumbIds[position].picture);
                 txt.setText(mThumbIds[position].label);
@@ -87,7 +94,29 @@ public class HomePageAdapter extends BaseAdapter {
 
     }
 
-    public static class GridStructer {
+    @SuppressLint("NewApi")
+	private int getGridViewColumnWidht(GridView parent) {
+        GridView a = (GridView)parent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+        	return parent.getColumnWidth();
+        }else {
+        	  try {
+                  Field field = GridView.class.getDeclaredField("mColumnWidth");
+                  field.setAccessible(true);
+                  Integer value = (Integer) field.get(this);
+                  field.setAccessible(false);
+                  return value.intValue();
+              } catch (NoSuchFieldException e) {
+                  throw new RuntimeException(e);
+              } catch (IllegalAccessException e) {
+                  throw new RuntimeException(e);
+              }
+        }
+        
+	}
+    
+
+	public static class GridStructer {
     	Integer picture;
     	String label;
     	GridStructer(Integer a,String b){

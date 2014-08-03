@@ -137,6 +137,17 @@ public class EXIFreadFragment extends Fragment {
 			float[] tf;
 			tmptxt = (TextView)getView().findViewById(R.id.researcher);
 			tmptxt.setText(envJSON.getResearcher());
+			tmptxt = (TextView)getView().findViewById(R.id.device);
+			String devicemodel = exif.getAttribute(ExifInterface.TAG_MODEL);
+			String devicevendor = exif.getAttribute(ExifInterface.TAG_MAKE);
+			if(devicemodel!=null&&devicemodel!=""){
+				tmptxt.setText(devicevendor+" "+devicemodel);
+			}
+			tmptxt = (TextView)getView().findViewById(R.id.timestamp);
+			String takendate = exif.getAttribute(ExifInterface.TAG_DATETIME);
+			if(takendate!=null&&takendate!=""){
+				tmptxt.setText(takendate);
+			}
 			tmptxt = (TextView)getView().findViewById(R.id.acceleration);
 			if(envJSON.hasAcceleration()){
 				tf=envJSON.getAcceleration();
@@ -144,6 +155,7 @@ public class EXIFreadFragment extends Fragment {
 			} else {
 				tmptxt.setText(getActivity().getString(R.string.notavailable));
 			}
+			
 			tmptxt = (TextView)getView().findViewById(R.id.gravity);
 			if(envJSON.hasGravity()){
 				tf=envJSON.getGravity();
@@ -175,25 +187,25 @@ public class EXIFreadFragment extends Fragment {
 			}
 			tmptxt = (TextView)getView().findViewById(R.id.light);
 			if(envJSON.hasLight()){
-				tmptxt.setText(""+envJSON.getLight());
+				tmptxt.setText(""+envJSON.getLight()+" "+getActivity().getString(R.string.lux));
 			} else {
 				tmptxt.setText(getActivity().getString(R.string.notavailable));
 			}
 			tmptxt = (TextView)getView().findViewById(R.id.pressure);
 			if(envJSON.hasPressure()){
-				tmptxt.setText(""+envJSON.getPressure());
+				tmptxt.setText(""+envJSON.getPressure()+" "+getActivity().getString(R.string.hpa));
 			} else {
 				tmptxt.setText(getActivity().getString(R.string.notavailable));
 			}
 			tmptxt = (TextView)getView().findViewById(R.id.tempurature);
 			if(envJSON.hasTempurature()){
-				tmptxt.setText(""+envJSON.getTempurature());
+				tmptxt.setText(""+envJSON.getTempurature()+" "+getActivity().getString(R.string.centigrate));
 			} else {
 				tmptxt.setText(getActivity().getString(R.string.notavailable));
 			}
 			tmptxt = (TextView)getView().findViewById(R.id.humidity);
 			if(envJSON.hasHumidity()){
-				tmptxt.setText(""+envJSON.getHumidity());
+				tmptxt.setText(""+envJSON.getHumidity()+" %%");
 			} else {
 				tmptxt.setText(getActivity().getString(R.string.notavailable));
 			}

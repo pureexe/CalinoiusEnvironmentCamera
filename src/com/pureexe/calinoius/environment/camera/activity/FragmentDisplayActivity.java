@@ -18,9 +18,11 @@ package com.pureexe.calinoius.environment.camera.activity;
 
 import com.pureexe.calinoius.environment.camera.fragment.CompassFragment;
 import com.pureexe.calinoius.environment.camera.fragment.EXIFreadFragment;
+import com.pureexe.calinoius.environment.camera.fragment.HelpFragment;
 import com.pureexe.calinoius.environment.camera.fragment.MainFragment;
 import com.pureexe.calinoius.environment.camera.fragment.SettingPreferenceFragment;
 import com.pureexe.calinoius.environment.camera.R;
+
 
 
 import android.app.Activity;
@@ -62,12 +64,17 @@ public class FragmentDisplayActivity extends Activity {
 			else if(start.equals("SettingPreferenceFragment")){
 					getFragmentManager().beginTransaction()
 							.replace(R.id.container, new SettingPreferenceFragment()).commit();
+			}
+			else if(start.equals("HelpFragment")){
+					getFragmentManager().beginTransaction()
+							.replace(R.id.container, new HelpFragment()).commit();
 			}else{
-				Toast.makeText(getApplicationContext(), "Not Found Intent : "+start, Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), "Not Found Intent : "+start, Toast.LENGTH_SHORT).show();
+				finish();
 			}
 		}
-
 	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
@@ -91,6 +98,9 @@ public class FragmentDisplayActivity extends Activity {
 		}
 		if(name.equals("SettingPreferenceFragment")){
 			return "Setting";
+		}
+		if(name.equals("HelpFragment")){
+			return getString(R.string.action_help);
 		}
 		return null;
 	}

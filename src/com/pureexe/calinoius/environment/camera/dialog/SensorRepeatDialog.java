@@ -42,6 +42,7 @@ public class SensorRepeatDialog extends DialogPreference{
 		mContext = context;
 	}
 	
+	
 	@Override
 	public void onClick() {
 		setSensorRepeat(mContext,this);
@@ -68,8 +69,6 @@ public class SensorRepeatDialog extends DialogPreference{
 		SensorRepeatPicker.setValue(repeattime-1);
 		SensorRepeatPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 		builder.setView(rootView);
-
-		
 		builder.setPositiveButton(context.getString(android.R.string.ok), new DialogInterface.OnClickListener() {
 		
 		public void onClick(DialogInterface dialog, int whichButton) {

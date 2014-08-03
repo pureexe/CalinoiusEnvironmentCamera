@@ -76,7 +76,11 @@ public class MainFragment extends Fragment  {
 	    gridview.setOnItemClickListener(new OnItemClickListener() {
 	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
 	        	if(position==0){
-	        		Toast.makeText(getActivity(), "No implement yet :P", Toast.LENGTH_SHORT).show();
+	            	Intent beepActivity = new Intent(getActivity(),FragmentDisplayActivity.class);
+	            	beepActivity.setAction(Intent.ACTION_SEND);
+	            	beepActivity.putExtra(Intent.EXTRA_TEXT,"UserFragment");
+	            	beepActivity.setType("beepActivity");
+	            	startActivity(beepActivity);
 	        	}
 	        	if(position==1){
 	    			Intent intent = new Intent(getActivity(), EnvironmentCameraActivity.class);
@@ -93,6 +97,20 @@ public class MainFragment extends Fragment  {
 	            	Intent beepActivity = new Intent(getActivity(),FragmentDisplayActivity.class);
 	            	beepActivity.setAction(Intent.ACTION_SEND);
 	            	beepActivity.putExtra(Intent.EXTRA_TEXT,"SettingPreferenceFragment");
+	            	beepActivity.setType("beepActivity");
+	            	startActivity(beepActivity);
+	            }
+	        	if(position==4){
+	            	Intent beepActivity = new Intent(getActivity(),FragmentDisplayActivity.class);
+	            	beepActivity.setAction(Intent.ACTION_SEND);
+	            	beepActivity.putExtra(Intent.EXTRA_TEXT,"HelpFragment");
+	            	beepActivity.setType("beepActivity");
+	            	startActivity(beepActivity);
+	            }
+	        	if(position==5){
+	            	Intent beepActivity = new Intent(getActivity(),FragmentDisplayActivity.class);
+	            	beepActivity.setAction(Intent.ACTION_SEND);
+	            	beepActivity.putExtra(Intent.EXTRA_TEXT,"AboutFragment");
 	            	beepActivity.setType("beepActivity");
 	            	startActivity(beepActivity);
 	            }

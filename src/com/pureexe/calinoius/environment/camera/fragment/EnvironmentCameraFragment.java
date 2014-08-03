@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Vector;
 
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -39,6 +40,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
@@ -102,13 +106,38 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 	private float 	BatteryTempurature;
 	private float[] Humidity;
 	
+	private Vector AccelerationList;
+	private Vector GravityList;
+	private Vector GyroscopeList;
+	private Vector MagneticFieldList;
+	private Vector OrientationList;
+	private Vector LightList;
+	private Vector PressureList;
+	private Vector TempuratureList;
+	private Vector BatteryTempuratureList;
+	private Vector HumidityList;
+	
+	private float[] AccelerationSum;
+	private float[] GravitySum;
+	private float[] GyroscopeSum;
+	private float[] MagneticFieldSum;
+	private float[] OrientationSum;
+	private float[] LightSum;
+	private float[] PressureSum;
+	private float[] TempuratureSum;
+	private float[]	BatteryTempuratureSum;
+	private float[] HumiditySum;
+	private int sensorRepeat;
 	
 	private TextView displayTxt;
 	private CameraPreview mPreview;
 	private FrameLayout cameraFramePreview;
 	private Camera mCamera;
 	private PictureCallback jpgePictureCallback;
+	private LocationManager locationManager;
+	private LocationListener locationListener;
 	protected long currentTime;
+	
 	
 	private DataManager dataManager;
 	
@@ -144,6 +173,7 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 	private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			  // Low sensitive so i'm doesn't add sensor repeat
 		      BatteryTempurature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)/10.0f;
 		}
 	  };
@@ -152,7 +182,6 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 	  {
 	      AudioManager meng = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
 	      int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
-
 	      if (volume != 0)
 	      {
 	    	  MediaPlayer _shootMP = null;
@@ -175,8 +204,44 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 		sensorTempurature = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 		sensorHumidity = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
 	
-		dataManager = new DataManager(getActivity());
+		// Init vector for storage sensor values history
+		AccelerationList = new Vector();
+		GravityList = new Vector();
+		GyroscopeList = new Vector();
+		MagneticFieldList = new Vector();
+		OrientationList = new Vector();
+		LightList = new Vector();
+		PressureList = new Vector();
+		TempuratureList = new Vector();
+		BatteryTempuratureList = new Vector();
+		HumidityList = new Vector();
+
+		//Init Sum of vector for use sliding windows Algorithm
+		AccelerationSum = new float[3];
+		GravitySum = new float[3];
+		GyroscopeSum = new float[3];
+		MagneticFieldSum = new float[3];
+		OrientationSum = new float[3];
+		LightSum = new float[3];
+		PressureSum = new float[3];
+		TempuratureSum = new float[3];
+		BatteryTempuratureSum = new float[3];
+		HumiditySum = new float[3];
 		
+		//Init Sensor result array
+		Acceleration = new float[3];
+		Gravity = new float[3];
+		Gyroscope = new float[3];
+		MagneticField = new float[3];
+		Orientation = new float[3];
+		Light = new float[3];
+		Pressure = new float[3];
+		Tempurature = new float[3];
+		Humidity = new float[3];
+		
+		// DataManager is Utility class for fetch sharepreference data
+		dataManager = new DataManager(getActivity()); 
+		// Callback When take picture
 		jpgePictureCallback = new PictureCallback() {
 		    @Override
 		    public void onPictureTaken(byte[] data, Camera camera) {
@@ -197,7 +262,7 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 		            ExifInterface exif = new ExifInterface(pictureFile.toString());
 		            envJson.setSoftware();
 		            envJson.setSoftwareVersion();
-		            envJson.setResearcher("Pakkapon Phongthawee, Mr.");
+		            envJson.setResearcher(dataManager.getString("Researcher"));
 		            if(hasAcceleration)
 		            	envJson.setAcceleration(Acceleration);
 		            if(hasGravity)
@@ -217,9 +282,11 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 		            if(hasTempurature){
 		            	envJson.setTempurature(Tempurature);
 		            }else {
-		            	float[] setTempuratureC=new float[1];
-		            	setTempuratureC[0]=BatteryTempurature;
-		            	envJson.setTempurature(setTempuratureC);
+		            	if(dataManager.getSettingBooleanTrue(SettingPreferenceFragment.THERMISTER_INTEGRATION)){
+		            		float[] setTempuratureC=new float[1];
+		            		setTempuratureC[0]=BatteryTempurature;
+		            		envJson.setTempurature(setTempuratureC);
+		            	}
 		            }
 		            exif.setAttribute("UserComment", envJson.getJSON().toString());
 		            exif.saveAttributes();
@@ -231,6 +298,20 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 
 		    }
 		};
+		// Location Listener
+		LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		LocationListener locationListener = new LocationListener() {
+		    public void onLocationChanged(Location location) {
+		    	
+		    }
+
+		    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+		    public void onProviderEnabled(String provider) {}
+
+		    public void onProviderDisabled(String provider) {}
+
+		  };
 		super.onCreate(savedInstanceState);
 	}
 
@@ -248,6 +329,7 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 		mCamera.stopPreview();
 		mCamera.release();
 		mCamera = null;
+		//locationManager.removeUpdates(locationListener);
 		super.onPause();
 	}
 
@@ -263,7 +345,7 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 		hasPressure = sensorManager.registerListener(this, sensorPressure,SensorManager.SENSOR_DELAY_NORMAL);
 		hasTempurature = sensorManager.registerListener(this, sensorTempurature,SensorManager.SENSOR_DELAY_NORMAL);
 		hasHumidity = sensorManager.registerListener(this, sensorHumidity,SensorManager.SENSOR_DELAY_NORMAL);
-		
+		sensorRepeat = dataManager.getInt("SesnorRepeat", 5);
 		 mCamera = CameraPreview.getCameraInstance();
 	     if(mCamera==null){
 	    	 Toast.makeText(getActivity(), "Can\'t connect camera", Toast.LENGTH_LONG).show();
@@ -283,6 +365,7 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 	     } else {
 	    	 getView().findViewById(R.id.aim_point).setVisibility(View.GONE);
 	     }
+	     //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 		super.onResume();
 	}
 	
@@ -334,32 +417,144 @@ public class EnvironmentCameraFragment extends Fragment implements SensorEventLi
 	public void onSensorChanged(SensorEvent event) {
 		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
 			Acceleration = event.values;
+			/*
+			AccelerationSum[0] +=event.values[0];
+			AccelerationSum[1] +=event.values[1];
+			AccelerationSum[2] +=event.values[2];
+			AccelerationList.add(event.values);
+			if(AccelerationList.size()>sensorRepeat){
+				float[] prevVar =(float[]) AccelerationList.remove(0);
+				AccelerationSum[0]-=prevVar[0];
+				AccelerationSum[1]-=prevVar[1];
+				AccelerationSum[2]-=prevVar[2];
+			}
+			Acceleration[0] = AccelerationSum[0]/(float)AccelerationList.size();
+			Acceleration[1] = AccelerationSum[1]/(float)AccelerationList.size();
+			Acceleration[2] = AccelerationSum[2]/(float)AccelerationList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_GRAVITY){
 			Gravity = event.values;
+			/*
+			GravitySum[0] +=event.values[0];
+			GravitySum[1] +=event.values[1];
+			GravitySum[2] +=event.values[2];
+			GravityList.add(event.values);
+			if(GravityList.size()>sensorRepeat){
+				float[] prevVar =(float[]) GravityList.remove(0);
+				GravitySum[0]-=prevVar[0];
+				GravitySum[1]-=prevVar[1];
+				GravitySum[2]-=prevVar[2];
+			}
+			Gravity[0] = GravitySum[0]/(float)GravityList.size();
+			Gravity[1] = GravitySum[1]/(float)GravityList.size();
+			Gravity[2] = GravitySum[2]/(float)GravityList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_GYROSCOPE){
 			Gyroscope = event.values;
+			/*
+			GyroscopeSum[0] +=event.values[0];
+			GyroscopeSum[1] +=event.values[1];
+			GyroscopeSum[2] +=event.values[2];
+			GyroscopeList.add(event.values);
+			if(GyroscopeList.size()>sensorRepeat){
+				float[] prevVar =(float[]) GyroscopeList.remove(0);
+				GyroscopeSum[0]-=prevVar[0];
+				GyroscopeSum[1]-=prevVar[1];
+				GyroscopeSum[2]-=prevVar[2];
+			}
+			Gyroscope[0] = GyroscopeSum[0]/(float)GyroscopeList.size();
+			Gyroscope[1] = GyroscopeSum[1]/(float)GyroscopeList.size();
+			Gyroscope[2] = GyroscopeSum[2]/(float)GyroscopeList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD){
 			MagneticField = event.values;
+			/*
+			MagneticFieldSum[0] +=event.values[0];
+			MagneticFieldSum[1] +=event.values[1];
+			MagneticFieldSum[2] +=event.values[2];
+			MagneticFieldList.add(event.values);
+			if(MagneticFieldList.size()>sensorRepeat){
+				float[] prevVar =(float[]) MagneticFieldList.remove(0);
+				MagneticFieldSum[0]-=prevVar[0];
+				MagneticFieldSum[1]-=prevVar[1];
+				MagneticFieldSum[2]-=prevVar[2];
+			}
+			MagneticField[0] = MagneticFieldSum[0]/(float)MagneticFieldList.size();
+			MagneticField[1] = MagneticFieldSum[1]/(float)MagneticFieldList.size();
+			MagneticField[2] = MagneticFieldSum[2]/(float)MagneticFieldList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_ORIENTATION){
 			Orientation = event.values;
+			/*
+			OrientationSum[0] +=event.values[0];
+			OrientationSum[1] +=event.values[1];
+			OrientationSum[2] +=event.values[2];
+			OrientationList.add(event.values);
+			if(OrientationList.size()>sensorRepeat){
+				float[] prevVar =(float[]) OrientationList.remove(0);
+				OrientationSum[0]-=prevVar[0];
+				OrientationSum[1]-=prevVar[1];
+				OrientationSum[2]-=prevVar[2];
+			}
+			Orientation[0] = OrientationSum[0]/(float)OrientationList.size();
+			Orientation[1] = OrientationSum[1]/(float)OrientationList.size();
+			Orientation[2] = OrientationSum[2]/(float)OrientationList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_PRESSURE){
 			Pressure = event.values;
+			/*
+			PressureSum[0] +=event.values[0];
+			PressureList.add(event.values);
+			if(PressureList.size()>sensorRepeat){
+				float[] prevVar =(float[]) PressureList.remove(0);
+				PressureSum[0]-=prevVar[0];
+			}
+			Pressure[0] = PressureSum[0]/(float)PressureList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_LIGHT){
 			Light = event.values;
+			/*
+			LightSum[0] +=event.values[0];
+			LightList.add(event.values);
+			if(LightList.size()>sensorRepeat){
+				float[] prevVar =(float[]) LightList.remove(0);
+				LightSum[0]-=prevVar[0];
+			}
+			Light[0] = LightSum[0]/(float)LightList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE){
 			Tempurature = event.values;
+			/*
+			TempuratureSum[0] +=event.values[0];
+			TempuratureList.add(event.values);
+			if(TempuratureList.size()>sensorRepeat){
+				float[] prevVar =(float[]) TempuratureList.remove(0);
+				TempuratureSum[0]-=prevVar[0];
+			}
+			Tempurature[0] = TempuratureSum[0]/(float)TempuratureList.size();
+			*/
 		}
 		if(event.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY){
 			Humidity = event.values;
-		}
-		
+			/*
+			HumiditySum[0] +=event.values[0];
+			HumidityList.add(event.values);
+			if(HumidityList.size()>sensorRepeat){
+				float[] prevVar =(float[]) HumidityList.remove(0);
+				HumiditySum[0]-=prevVar[0];
+			}
+			Humidity[0] = HumiditySum[0]/(float)HumidityList.size();
+			*/
+		}	
 	}
+	
+	
 	
 }
